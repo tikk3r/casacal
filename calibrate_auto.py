@@ -1,3 +1,4 @@
+# CASA 4.7.0 required!
 # Automatically (mostly) calibrates a JVLA observation.
 # Must be run with an internet connection to determine antenna offsets and opacity measurements.
 
@@ -37,7 +38,7 @@ before starting the script will make the script execute
 only steps 2, 3, and 4
 Setting mysteps = [] will make it execute all steps.
 '''
-#Calibration steps
+# Calibration steps
 thesteps = [0]
 step_title = {0: 'Set the variables and initial split (split)',
                 1: 'A priori correction of opacity, antenna elevation and antenna positions (gencal)',
@@ -50,9 +51,10 @@ step_title = {0: 'Set the variables and initial split (split)',
                 8: 'Determine the absolute flux-scale of the calibrators (fluxscale)',
                 9: 'Applying the calibration tables (applycal)',
                 10: 'Split target (split)',
-                11: 'Clean and self-calibrate (phase) full dataset (clean)',
-                12: 'Continuium substraction (uvcontsub)',
-                13: 'Make dirty image cube (clean)'}
+                11: 'Create dirty cubes (clean)',
+                #12: 'Continuum substraction (uvcontsub)',
+                13: 'Spectra of flux,phase and target (specflux)',
+                13: '0th order moment map (immoments)'}
 
 try:
     print 'List of steps to be executed ...', mysteps
@@ -202,6 +204,7 @@ if(mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     flux = fluxscale(vis=mssplit,caltable="gainamp.cal",fluxtable="flux.cal",reference=['0'],transfer=['1'],listfile="",append=False,refspwmap=[-1],gainthreshold=-1.0,antenna="",timerange="",scan="",incremental=True,fitorder=1,display=True)
+    gtables += ['flux.cal']
 
     setjy(vis=mssplit,field="1",spw="",selectdata=False,timerange="",scan="",intent="",observation="",scalebychan=True,standard="fluxscale",model="",modimage=None,listmodels=False,fluxdensity=-1,spix=0.0,reffreq="1GHz",polindex=[],polangle=[],rotmeas=0.0,fluxdict=flux,useephemdir=False,interpolation="nearest",usescratch=True,ismms=None)
 
@@ -235,13 +238,13 @@ if(mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Apply calibrations to the flux calibrator.
-    applycal(vis=mssplit,field="0",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=['gaincurve.cal', 'opacity.cal', 'antpos.cal', 'delays.cal', 'bandpass.cal', 'gainphase.cal', 'flux.cal'],gainfield=['', '', '', '0', '0', '0', '0'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field="0",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables,gainfield=['', '', '', '0', '0', '0', '0'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 
     # Apply calibrations to the phase reference.
-    applycal(vis=mssplit,field="1",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=['gaincurve.cal', 'opacity.cal', 'antpos.cal', 'delays2.cal', 'bandpass2.cal', 'gainphase2.cal', 'gainamp2.cal'],gainfield=['', '', '', '1', '1', '1', '1'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field="1",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=['', '', '', '1', '1', '1', '1'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 
     # Apply calibrations to the target.
-    applycal(vis=mssplit,field="2",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=['gaincurve.cal', 'opacity.cal', 'antpos.cal', 'delays2.cal', 'bandpass2.cal', 'gainphase2.cal', 'gainamp2.cal'],gainfield=['', '', '', '1', '1', '1', '1'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field="2",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=['', '', '', '1', '1', '1', '1'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 # End of step 9.                                 #
 ##################################################
 
@@ -278,10 +281,21 @@ if(mystep in thesteps):
 # End of step 11.                #
 ##################################
 
-####################################################
-# Step 12: Create 0th moment map. #
+###############################################################################
+# Step 12: Create spectra of the flux calibrator, phase reference and target. #
+# Flux calibrator.
+specflux(imagename='fluxref_cube.ms', region='fluxref_region', chans='', stokes='I', mask='', unit='GHz', major='', minor='', logfile='fluxref_spectrum.txt')
+# Phase reference.
+specflux(imagename='phaseref_cube.ms', region='fluxref_region', chans='', stokes='I', mask='', unit='GHz', major='', minor='', logfile='fluxref_spectrum.txt')
+# Target source
+specflux(imagename='target_cube.ms', region='fluxref_region', chans='', stokes='I', mask='', unit='GHz', major='', minor='', logfile='fluxref_spectrum.txt')
+# End of step 12.                                                             #
+###############################################################################
+
+###################################
+# Step 13: Create 0th moment map. #
 mystep = 12
 if (mystep in thesteps):
     immoments(imagename=mstarget+'.image',moments=[0],axis="spectral",region="",box="",chans="340~360",stokes="I",mask=[],includepix=-1,excludepix=-1,outfile="target_CO_mom0_tight",stretch=False)
-# End of step 12.                #
+# End of step 13.                #
 ##################################
