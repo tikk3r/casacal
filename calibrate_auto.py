@@ -6,19 +6,20 @@ DEBUG = True
 # Observation
 flux_calibrator = '3C286'
 flux_calibrator_band = 'K'
-myconfig = 'B'                                                      # VLA array configuration used for the observation.
+myconfig = 'C'                                                      # VLA array configuration used for the observation.
 myband = 'K'                                                        # Observing band.
 
 # MS specific
-msfile = '11B-002.sb4976543.eb5672203.55851.96080417824.ms'         # Original MS file.
-myfield = '2,4,5'                                                   # Fields to split into separate file (in order of flux, phase, target).
-myspw = '2~17'                                                      # Spectral windows of interest.
-mssplit = '11B-002.srcs_K.ms'                                       # MS file with the interesting sources from `myfield`.
-msscans = '11B-002.srcs_K.ms.txt'                                   # Text file to write `listobs` output to.
+msfile = '10B-245_sb2156325_1.55500.189165324075.ms'                # Original MS file.
+myfield = '0,2,4'                                                   # Fields to split into separate file.
+myfluxref, myphaseref, mytarget = '2', '1', '0'                     # The _NEW_ indices of the fields (starting from 0 on the lowest field).
+myspw = '2~3'                                                       # Spectral windows of interest.
+mssplit = '10B-245.srcs_K.ms'                                       # MS file with the interesting sources from `myfield`.
+msscans = '10B-245.srcs_K.ms.txt'                                   # Text file to write `listobs` output to.
 mstarget = 'target_K.ms'                                            # MS file of the target.
 myimage = 'target_K_image'                                          # Image.
 mycube = 'target_K_cube'                                            # Cube.
-mycontsub = 'target_K.ms.contsub'                              # Continuum subtraction.
+mycontsub = 'target_K.ms.contsub'                                   # Continuum subtraction.
 skymodel = 'target_K.model'                                         # Sky model.
 mymask = 'target_K.mask'                                            # Mask.
 myrefant = 'ea05'                                                   # Reference antenna.
@@ -152,7 +153,7 @@ if (mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Set the flux scale for field 2 (the flux calibrator) using the model.
-    setjy(vis=mssplit,field="0",spw="",selectdata=False,timerange="",scan="",intent="",observation="",scalebychan=True,standard="Perley-Butler 2010",model='%s_%s.im'%(flux_calibrator, flux_calibrator_band),modimage=None,
+    setjy(vis=mssplit,field=myfluxref,spw="",selectdata=False,timerange="",scan="",intent="",observation="",scalebychan=True,standard="Perley-Butler 2010",model='%s_%s.im'%(flux_calibrator, flux_calibrator_band),modimage=None,
             listmodels=False,fluxdensity=-1,spix=0.0,reffreq="1GHz",polindex=[],rotmeas=0.0,fluxdict={},useephemdir=False,interpolation="nearest",usescratch=True,ismms=None)
 # End of step 3.                               #
 ################################################
@@ -167,7 +168,7 @@ if (mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Calculate the calibrations using only a few of the central channels for each spectral window such that the response is essentially flat as function of frequency.
-    gaincal(vis=mssplit,caltable="intphase.cal",field="0",spw="*:28~36",intent="",selectdata=False,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=2.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="intphase.cal",field=myfluxref,spw="*:28~36",intent="",selectdata=False,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=2.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables += ['intphase.cal']
 # End of step 4.                   #
 ####################################
@@ -182,7 +183,7 @@ if (mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Calculate calibrations for the delays between antennas.
-    gaincal(vis=mssplit,caltable="delays.cal",field="0",spw="*:4~60",intent="",selectdata=False,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=2.0,solnorm=False,gaintype="K",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="delays.cal",field=myfluxref,spw="*:4~60",intent="",selectdata=False,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=2.0,solnorm=False,gaintype="K",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables += ['delays.cal']
 # End of step 5.                       #
 ########################################
@@ -197,7 +198,7 @@ if (mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Calculate calibrations for the bandpass.
-    bandpass(vis=mssplit,caltable="bandpass.cal",field="0",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",refant=myrefant,minblperant=4,minsnr=2.0,solnorm=False,bandtype="B",smodel=[],append=False,fillgaps=0,degamp=3,degphase=3,visnorm=False,maskcenter=0,maskedge=5,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
+    bandpass(vis=mssplit,caltable="bandpass.cal",field=myfluxref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",refant=myrefant,minblperant=4,minsnr=2.0,solnorm=False,bandtype="B",smodel=[],append=False,fillgaps=0,degamp=3,degphase=3,visnorm=False,maskcenter=0,maskedge=5,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables += ['bandpass.cal']
     gtables.remove('intphase.cal')
 # End of step 6.                #
@@ -212,17 +213,17 @@ if (mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Calculate phase calibrations for the flux calibrator.
-    gaincal(vis=mssplit,caltable="gainphase.cal",field="0",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="gainphase.cal",field=myfluxref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
 
     # Calculate phase calibrations for the phase reference (Note `append=True`).
-    gaincal(vis=mssplit,caltable="gainphase.cal",field="1",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=True,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="gainphase.cal",field=myphaseref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=True,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables += ['gainphase.cal']
 
     # Calculate amplitude calibrations for the flux calibrator.
-    gaincal(vis=mssplit,caltable="gainamp.cal",field="0",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="ap",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=gfields+['0', '0', '0'],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="gainamp.cal",field=myfluxref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="ap",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=gfields+['0', '0', '0'],interp=[],spwmap=[],parang=False)
 
     # Calculate amplitude calibrations for the phase reference (Note `append=True`).
-    gaincal(vis=mssplit,caltable="gainamp.cal",field="1",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="ap",append=True,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=gfields+['0', '0', '1'],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="gainamp.cal",field=myphaseref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="ap",append=True,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables,gainfield=gfields+['0', '0', '1'],interp=[],spwmap=[],parang=False)
     gtables += ['gainamp.cal']
 # End of step 7.                         #
 ##########################################
@@ -234,26 +235,25 @@ mystep = 8
 if(mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
-    flux = fluxscale(vis=mssplit,caltable="gainamp.cal",fluxtable="flux.cal",reference=['0'],transfer=['1'],listfile="",append=False,refspwmap=[-1],gainthreshold=-1.0,antenna="",timerange="",scan="",incremental=True,fitorder=1,display=True)
-    gtables += ['flux.cal']
+    flux = fluxscale(vis=mssplit,caltable="gainamp.cal",fluxtable="flux.cal",reference=[myfluxref],transfer=[myphaseref],listfile="",append=False,refspwmap=[-1],gainthreshold=-1.0,antenna="",timerange="",scan="",incremental=True,fitorder=1,display=True)
 
-    setjy(vis=mssplit,field="1",spw="",selectdata=False,timerange="",scan="",intent="",observation="",scalebychan=True,standard="fluxscale",model="",modimage=None,listmodels=False,fluxdensity=-1,spix=0.0,reffreq="1GHz",polindex=[],polangle=[],rotmeas=0.0,fluxdict=flux,useephemdir=False,interpolation="nearest",usescratch=True,ismms=None)
+    setjy(vis=mssplit,field=myphaseref,spw="",selectdata=False,timerange="",scan="",intent="",observation="",scalebychan=True,standard="fluxscale",model="",modimage=None,listmodels=False,fluxdensity=-1,spix=0.0,reffreq="1GHz",polindex=[],polangle=[],rotmeas=0.0,fluxdict=flux,useephemdir=False,interpolation="nearest",usescratch=True,ismms=None)
 
-    gaincal(vis=mssplit,caltable="intphase2.cal",field="1",spw="*:28~36",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="intphase2.cal",field=myphaseref,spw="*:28~36",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables2 += ['intphase2.cal']
 
-    gaincal(vis=mssplit,caltable="delays2.cal",field="1",spw="*:28~36",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="K",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="delays2.cal",field=myphaseref,spw="*:28~36",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="K",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables2 += ['delays2.cal']
 
-    bandpass(vis=mssplit,caltable="bandpass2.cal",field="1",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,bandtype="B",smodel=[],append=False,fillgaps=0,degamp=3,degphase=3,visnorm=False,maskcenter=0,maskedge=5,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
+    bandpass(vis=mssplit,caltable="bandpass2.cal",field=myphaseref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="inf",combine="scan",refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,bandtype="B",smodel=[],append=False,fillgaps=0,degamp=3,degphase=3,visnorm=False,maskcenter=0,maskedge=5,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables2 += ['bandpass2.cal']
 
     gtables2.remove('intphase2.cal')
 
-    gaincal(vis=mssplit,caltable="gainphase2.cal",field="1",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="gainphase2.cal",field=myphaseref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="p",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables2 += ['gainphase2.cal']
 
-    gaincal(vis=mssplit,caltable="gainamp2.cal",field="1",spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="ap",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
+    gaincal(vis=mssplit,caltable="gainamp2.cal",field=myphaseref,spw="*:4~60",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",solint="int",combine="",preavg=-1.0,refant=myrefant,minblperant=4,minsnr=3.0,solnorm=False,gaintype="G",smodel=[],calmode="ap",append=False,splinetime=3600.0,npointaver=3,phasewrap=180.0,docallib=False,callib="",gaintable=gtables2,gainfield=[],interp=[],spwmap=[],parang=False)
     gtables2 += ['gainamp2.cal']
 # End of step 8.                           #
 ############################################
@@ -275,13 +275,13 @@ if(mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Apply calibrations to the flux calibrator.
-    applycal(vis=mssplit,field="0",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables,gainfield=gfields+['0', '0', '0', '0'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field=myfluxref,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables,gainfield=gfields+[myfluxref, myfluxref, myfluxref, myfluxref],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 
     # Apply calibrations to the phase reference.
-    applycal(vis=mssplit,field="1",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+['1', '1', '1', '1'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field=myphaseref,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+[myphaseref, myphaseref, myphaseref, myphaseref],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 
     # Apply calibrations to the target.
-    applycal(vis=mssplit,field="2",spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+['1', '1', '1', '1'],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field=mytarget,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+[myphaseref, myphaseref, myphaseref, myphaseref],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 # End of step 9.                                 #
 ##################################################
 
@@ -298,9 +298,9 @@ mystep = 10
 if(mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
-    split(vis=mssplit,outputvis=mstarget,keepmms=True,field="2",spw="",scan="",antenna="",correlation="",timerange="",intent="",array="",uvrange="",observation="",feed="",datacolumn="corrected",keepflags=True,width=1,timebin="0s",combine="")
-    split(vis=mssplit,outputvis='phaseref.ms',keepmms=True,field="1",spw="",scan="",antenna="",correlation="",timerange="",intent="",array="",uvrange="",observation="",feed="",datacolumn="corrected",keepflags=True,width=1,timebin="0s",combine="")
-    split(vis=mssplit,outputvis='fluxref.ms',keepmms=True,field="0",spw="",scan="",antenna="",correlation="",timerange="",intent="",array="",uvrange="",observation="",feed="",datacolumn="corrected",keepflags=True,width=1,timebin="0s",combine="")
+    split(vis=mssplit,outputvis=mstarget,keepmms=True,field=mytarget,spw="",scan="",antenna="",correlation="",timerange="",intent="",array="",uvrange="",observation="",feed="",datacolumn="corrected",keepflags=True,width=1,timebin="0s",combine="")
+    split(vis=mssplit,outputvis='phaseref.ms',keepmms=True,field=myphaseref,spw="",scan="",antenna="",correlation="",timerange="",intent="",array="",uvrange="",observation="",feed="",datacolumn="corrected",keepflags=True,width=1,timebin="0s",combine="")
+    split(vis=mssplit,outputvis='fluxref.ms',keepmms=True,field=myfluxref,spw="",scan="",antenna="",correlation="",timerange="",intent="",array="",uvrange="",observation="",feed="",datacolumn="corrected",keepflags=True,width=1,timebin="0s",combine="")
 # End of step 10.                #
 ##################################
 
