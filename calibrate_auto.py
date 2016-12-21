@@ -129,10 +129,12 @@ if (mystep in thesteps):
         gtables = ['opacity.cal', 'antpos.cal', 'gaincurve.cal']
         gtables2 = ['opacity.cal', 'antpos.cal', 'gaincurve.cal']
         gfields = ['', '', '']
+        interpols = ['', '', '']
     else:
         gtables = ['opacity.cal', 'gaincurve.cal']
         gtables2 = ['opacity.cal', 'gaincurve.cal']
         gfields = ['', '']
+        interpols =['', '']
 # End of step 1.      #
 #######################
 
@@ -275,13 +277,13 @@ if(mystep in thesteps):
     casalog.post('Step '+str(mystep)+' '+step_title[mystep],'INFO')
     print 'Step ', mystep, step_title[mystep]
     # Apply calibrations to the flux calibrator.
-    applycal(vis=mssplit,field=myfluxref,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables,gainfield=gfields+[myfluxref, myfluxref, myfluxref, myfluxref],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field=myfluxref,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables,gainfield=gfields+[myfluxref, myfluxref, myfluxref, myfluxref],interp=interpols + ['nearest', 'nearest', 'linear', 'nearest'], spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 
     # Apply calibrations to the phase reference.
-    applycal(vis=mssplit,field=myphaseref,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+[myphaseref, myphaseref, myphaseref, myphaseref],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field=myphaseref,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+[myphaseref, myphaseref, myphaseref, myphaseref],interp=interpols + ['nearest', 'nearest', 'linear', 'nearest'], spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 
     # Apply calibrations to the target.
-    applycal(vis=mssplit,field=mytarget,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+[myphaseref, myphaseref, myphaseref, myphaseref],interp=['linear', 'linear', 'linear', 'nearest', 'nearest', 'linear', 'nearest'],spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
+    applycal(vis=mssplit,field=mytarget,spw="",intent="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",msselect="",docallib=False,callib="",gaintable=gtables2,gainfield=gfields+[myphaseref, myphaseref, myphaseref, myphaseref],interp=interpols + ['nearest', 'nearest', 'linear', 'nearest'], spwmap=[],calwt=False,parang=False,applymode="",flagbackup=True)
 # End of step 9.                                 #
 ##################################################
 
@@ -333,10 +335,10 @@ if(mystep in thesteps):
     else:
         print 'Creating dirty cube for target.'
     clean(vis=mstarget,imagename=mycube,outlierfile="",field="",spw="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",intent="",mode="frequency",resmooth=False,gridmode="",wprojplanes=-1,facets=1,cfcache="cfcache.dir",rotpainc=5.0,painc=360.0,aterm=True,psterm=False,mterm=True,wbawp=False,conjbeams=True,epjtable="",interpolation="linear",niter=0,gain=0.05,threshold="6.0e-5Jy",psfmode="clark",imagermode="csclean",ftmachine="mosaic",mosweight=False,scaletype="SAULT",multiscale=[],negcomponent=-1,smallscalebias=0.6,interactive=False,mask="",nchan=-1,start='22.6794GHz',width='2MHz',outframe="",veltype="radio",imsize=myimsize,cell=mycell,phasecenter="",restfreq="23.38348GHz",stokes="I",weighting="natural",robust=0,uvtaper=False,outertaper=[''],innertaper=['1.0'],modelimage="",restoringbeam=[''],pbcor=False,minpb=0.2,usescratch=True,noise="1.0Jy",npixels=0,npercycle=100,cyclefactor=1.5,cyclespeedup=-1,nterms=1,reffreq="",chaniter=False,flatnoise=True,allowchunk=False)
-    #print 'Creating dirty cube for phase reference.'
-    #clean(vis='phaseref.ms',imagename='phaseref_cube.ms',outlierfile="",field="",spw="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",intent="",mode="frequency",resmooth=False,gridmode="",wprojplanes=-1,facets=1,cfcache="cfcache.dir",rotpainc=5.0,painc=360.0,aterm=True,psterm=False,mterm=True,wbawp=False,conjbeams=True,epjtable="",interpolation="linear",niter=0,gain=0.05,threshold="6.0e-5Jy",psfmode="clark",imagermode="csclean",ftmachine="mosaic",mosweight=False,scaletype="SAULT",multiscale=[],negcomponent=-1,smallscalebias=0.6,interactive=False,mask="",nchan=-1,start='22.6794GHz',width='2MHz',outframe="",veltype="radio",imsize=myimsize,cell=mycell,phasecenter="",restfreq="23.38348GHz",stokes="I",weighting="natural",robust=0,uvtaper=False,outertaper=[''],innertaper=['1.0'],modelimage="",restoringbeam=[''],pbcor=False,minpb=0.2,usescratch=True,noise="1.0Jy",npixels=0,npercycle=100,cyclefactor=1.5,cyclespeedup=-1,nterms=1,reffreq="",chaniter=False,flatnoise=True,allowchunk=False)
-    #print 'Creating dirty cube for flux reference.'
-    #clean(vis='fluxref.ms',imagename='fluxref_cube.ms',outlierfile="",field="",spw="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",intent="",mode="frequency",resmooth=False,gridmode="",wprojplanes=-1,facets=1,cfcache="cfcache.dir",rotpainc=5.0,painc=360.0,aterm=True,psterm=False,mterm=True,wbawp=False,conjbeams=True,epjtable="",interpolation="linear",niter=0,gain=0.05,threshold="6.0e-5Jy",psfmode="clark",imagermode="csclean",ftmachine="mosaic",mosweight=False,scaletype="SAULT",multiscale=[],negcomponent=-1,smallscalebias=0.6,interactive=False,mask="",nchan=-1,start='22.6794GHz',width='2MHz',outframe="",veltype="radio",imsize=myimsize,cell=mycell,phasecenter="",restfreq="23.38348GHz",stokes="I",weighting="natural",robust=0,uvtaper=False,outertaper=[''],innertaper=['1.0'],modelimage="",restoringbeam=[''],pbcor=False,minpb=0.2,usescratch=True,noise="1.0Jy",npixels=0,npercycle=100,cyclefactor=1.5,cyclespeedup=-1,nterms=1,reffreq="",chaniter=False,flatnoise=True,allowchunk=False)
+    print 'Creating dirty cube for phase reference.'
+    clean(vis='phaseref.ms',imagename='phaseref_cube.ms',outlierfile="",field="",spw="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",intent="",mode="frequency",resmooth=False,gridmode="",wprojplanes=-1,facets=1,cfcache="cfcache.dir",rotpainc=5.0,painc=360.0,aterm=True,psterm=False,mterm=True,wbawp=False,conjbeams=True,epjtable="",interpolation="linear",niter=0,gain=0.05,threshold="6.0e-5Jy",psfmode="clark",imagermode="csclean",ftmachine="mosaic",mosweight=False,scaletype="SAULT",multiscale=[],negcomponent=-1,smallscalebias=0.6,interactive=False,mask="",nchan=-1,start='22.6794GHz',width='2MHz',outframe="",veltype="radio",imsize=myimsize,cell=mycell,phasecenter="",restfreq="23.38348GHz",stokes="I",weighting="natural",robust=0,uvtaper=False,outertaper=[''],innertaper=['1.0'],modelimage="",restoringbeam=[''],pbcor=False,minpb=0.2,usescratch=True,noise="1.0Jy",npixels=0,npercycle=100,cyclefactor=1.5,cyclespeedup=-1,nterms=1,reffreq="",chaniter=False,flatnoise=True,allowchunk=False)
+    print 'Creating dirty cube for flux reference.'
+    clean(vis='fluxref.ms',imagename='fluxref_cube.ms',outlierfile="",field="",spw="",selectdata=True,timerange="",uvrange="",antenna="",scan="",observation="",intent="",mode="frequency",resmooth=False,gridmode="",wprojplanes=-1,facets=1,cfcache="cfcache.dir",rotpainc=5.0,painc=360.0,aterm=True,psterm=False,mterm=True,wbawp=False,conjbeams=True,epjtable="",interpolation="linear",niter=0,gain=0.05,threshold="6.0e-5Jy",psfmode="clark",imagermode="csclean",ftmachine="mosaic",mosweight=False,scaletype="SAULT",multiscale=[],negcomponent=-1,smallscalebias=0.6,interactive=False,mask="",nchan=-1,start='22.6794GHz',width='2MHz',outframe="",veltype="radio",imsize=myimsize,cell=mycell,phasecenter="",restfreq="23.38348GHz",stokes="I",weighting="natural",robust=0,uvtaper=False,outertaper=[''],innertaper=['1.0'],modelimage="",restoringbeam=[''],pbcor=False,minpb=0.2,usescratch=True,noise="1.0Jy",npixels=0,npercycle=100,cyclefactor=1.5,cyclespeedup=-1,nterms=1,reffreq="",chaniter=False,flatnoise=True,allowchunk=False)
     '''
     ###############################################################################
     # Create spectra of the flux calibrator, phase reference and target.          #
